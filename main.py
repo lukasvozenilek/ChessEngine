@@ -1,6 +1,6 @@
-import chess, random
+import chess, random, time
 
-firstmovesdict = {"e4": "d5"}
+firstmovesdict = {}
 
 
 # Settings
@@ -102,7 +102,8 @@ def analyzemove(firstcolor, color, aboard, depth):
                 squaresleft = 8 - currank
             if color == chess.BLACK:
                 squaresleft = currank - 1
-            finalvalue += 8 / (squaresleft * squaresleft * squaresleft)
+            if squaresleft > 0:
+                finalvalue += 8 / (squaresleft * squaresleft * squaresleft)
 
         # Runs next depth
         if depth < maxdepth:
@@ -155,6 +156,8 @@ while (not board.is_checkmate()) and (not board.is_stalemate()) and (not board.i
     board.push_san(move)
     print(board)
 
+    starttime = time.time()
+
     # Analyze moves here
     #Check if move in first moves dict
     if i == 0 and move in firstmovesdict:
@@ -165,6 +168,7 @@ while (not board.is_checkmate()) and (not board.is_stalemate()) and (not board.i
 
     board.push_san(mymove)
     print(f'{moves_checked:,}' + " possible moves analysed!")
+    print(f'{moves_checked/(time.time() - starttime):,}' " moves/second")
     moves_checked = 0
     print("\n\nMOVE: " + mymove)
     print(board)
