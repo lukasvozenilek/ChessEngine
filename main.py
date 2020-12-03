@@ -3,14 +3,12 @@ import chess, random
 firstmovesdict = {"e4": "d5"}
 
 
-
-
 # Settings
 maxdepth = 3
 random_mag = 0.25
 centerbonus = 0.25
 centerattackbonus = 0.25
-checkbonus = 2
+checkbonus = 0.5
 endbonus = 15
 
 
