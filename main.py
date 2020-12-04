@@ -3,7 +3,7 @@ import chess, random, time, math, chess.pgn, chess.engine
 firstmovesdict = {}
 
 # Settings
-maxdepth = 3
+maxdepth = 1
 random_mag = 0
 centerbonus = 0.25
 centerattackbonus = 0.25
@@ -47,106 +47,18 @@ def log(string):
 def analyzemove(aboard, alpha, beta, max, depth):
     global moves_checked
     global verbose
-    movenum = aboard.fullmove_number
     color = aboard.turn
     if verbose:
         log("\n\nAnalyzing " + str(color) + " at Depth: " + str(depth))
         log(aboard)
     all_moves = {}
-    # Change the sign of points addition depending on if we are analyzing our vs opponent move
     for move in aboard.legal_moves:
         # moves_checked += 1
         if (verbose):
             if depth == 0:
                 log("Analyzing upper move: ^" + str(move))
 
-        finalvalue = 0
-        movepiece = aboard.piece_at(move.from_square)
-
-        # Points distribution
-        # Capture
-        if aboard.is_capture(move):
-
-            if aboard.is_en_passant(move):
-                piece = chess.PAWN
-            else:
-                piece = aboard.piece_at(move.to_square).piece_type
-            if verbose:
-                pass
-                #log("Capture of value: " + str(pointsdict[piece]))
-            finalvalue += pointsdict[piece]
-
-        earlygain = (earlycurve_k * math.pow(earlycurve_base, -movenum + earlycurve_o))
-
-        # Development
-        if color == chess.WHITE:
-            if (movepiece.piece_type == chess.PAWN and (move.from_square in chess.SquareSet(chess.BB_RANK_2))) or (
-                    move.from_square in chess.SquareSet(chess.BB_RANK_1)):
-                devbonusi = earlygain * devbonus[movepiece.piece_type]
-                if verbose:
-                    #log("Applying development bonus of " + str(devbonusi))
-                    pass
-                finalvalue += devbonusi
-        if color == chess.BLACK:
-            if (movepiece.piece_type == chess.PAWN and (move.from_square in chess.SquareSet(chess.BB_RANK_7))) or (
-                    move.from_square in chess.SquareSet(chess.BB_RANK_8)):
-                devbonusi = earlygain * devbonus[movepiece.piece_type]
-                if verbose:
-                    pass
-                    #log("Applying development bonus of " + str(devbonusi))
-                finalvalue += devbonusi
-
-        # Center position
-        if move.to_square in chess.SquareSet(chess.BB_CENTER):
-            if verbose:
-                pass
-                #log("Applying center position bonus")
-            finalvalue += earlygain * centerbonus
-
-        # Check
-        if aboard.gives_check(move):
-            finalvalue += checkbonus
-
-        if aboard.is_castling(move):
-            finalvalue += castlebonus
-
-        # Push move for the following points
-        aboard.push(move)
-
-        # Center attack
-        if verbose & (len(chess.SquareSet(chess.BB_CENTER) & aboard.attacks(move.to_square)) > 0):
-            pass
-            #log("Applying center attack bonus of: " + str(earlygain * centerattackbonus * len(chess.SquareSet(chess.BB_CENTER) & aboard.attacks(move.to_square))))
-        finalvalue += earlygain * centerattackbonus * len(
-            chess.SquareSet(chess.BB_CENTER) & aboard.attacks(move.to_square))
-
-        # Mates
-        if aboard.is_checkmate():
-            finalvalue += endbonus
-        if aboard.is_stalemate():
-            finalvalue -= endbonus
-        if aboard.is_repetition():
-            finalvalue -= 100
-
-        # Pop back move after analysing
-        aboard.pop()
-
-        # Random variance
-        finalvalue += (random.random() * random_mag) - (random_mag / 2)
-
-        # Promotion
-        if movepiece.piece_type == chess.PAWN:
-            currank = chess.square_rank(move.from_square)
-            if color == chess.WHITE and move.to_square in chess.SquareSet(chess.BB_RANK_8):
-                if (verbose):
-                    pass
-                    #log("Applying promotion bonus")
-                finalvalue += 8
-            if color == chess.BLACK and move.to_square in chess.SquareSet(chess.BB_RANK_1):
-                if (verbose):
-                    pass
-                    #log("Applying promotion bonus")
-                finalvalue += 8
+        finalvalue = evaluatemove(aboard, move)
 
         # Runs next depth
         if depth < maxdepth:
@@ -202,6 +114,102 @@ def alphaBetaMin(alpha, beta, depthleft)
 '''
 
 
+# Contains all evaluation logic for a given move on a board
+def evaluatemove(board, move):
+    color = board.turn
+    movenum = board.fullmove_number
+    finalvalue = 0
+    movepiece = board.piece_at(move.from_square)
+
+    # Points distribution
+    # Capture
+    if board.is_capture(move):
+
+        if board.is_en_passant(move):
+            piece = chess.PAWN
+        else:
+            piece = board.piece_at(move.to_square).piece_type
+        if verbose:
+            pass
+            # log("Capture of value: " + str(pointsdict[piece]))
+        finalvalue += pointsdict[piece]
+
+    earlygain = (earlycurve_k * math.pow(earlycurve_base, -movenum + earlycurve_o))
+
+    # Development
+    if board == chess.WHITE:
+        if (movepiece.piece_type == chess.PAWN and (move.from_square in chess.SquareSet(chess.BB_RANK_2))) or (
+                move.from_square in chess.SquareSet(chess.BB_RANK_1)):
+            devbonusi = earlygain * devbonus[movepiece.piece_type]
+            if verbose:
+                # log("Applying development bonus of " + str(devbonusi))
+                pass
+            finalvalue += devbonusi
+    if board == chess.BLACK:
+        if (movepiece.piece_type == chess.PAWN and (move.from_square in chess.SquareSet(chess.BB_RANK_7))) or (
+                move.from_square in chess.SquareSet(chess.BB_RANK_8)):
+            devbonusi = earlygain * devbonus[movepiece.piece_type]
+            if verbose:
+                pass
+                # log("Applying development bonus of " + str(devbonusi))
+            finalvalue += devbonusi
+
+    # Center position
+    if move.to_square in chess.SquareSet(chess.BB_CENTER):
+        if verbose:
+            pass
+            # log("Applying center position bonus")
+        finalvalue += earlygain * centerbonus
+
+    # Check
+    if board.gives_check(move):
+        finalvalue += checkbonus
+
+    if board.is_castling(move):
+        finalvalue += castlebonus
+
+    # Push move for the following points
+    board.push(move)
+
+    # Center attack
+    if verbose & (len(chess.SquareSet(chess.BB_CENTER) & board.attacks(move.to_square)) > 0):
+        pass
+        # log("Applying center attack bonus of: " + str(earlygain * centerattackbonus * len(chess.SquareSet(chess.BB_CENTER) & aboard.attacks(move.to_square))))
+    finalvalue += earlygain * centerattackbonus * len(
+        chess.SquareSet(chess.BB_CENTER) & board.attacks(move.to_square))
+
+    # Mates
+    if board.is_checkmate():
+        finalvalue += endbonus
+    if board.is_stalemate():
+        finalvalue -= endbonus
+    if board.is_repetition():
+        finalvalue -= 100
+
+    # Pop back move after analysing
+    board.pop()
+
+    # Random variance
+    finalvalue += (random.random() * random_mag) - (random_mag / 2)
+
+    # Promotion
+    if movepiece.piece_type == chess.PAWN:
+        currank = chess.square_rank(move.from_square)
+        if color == chess.WHITE and move.to_square in chess.SquareSet(chess.BB_RANK_8):
+            if (verbose):
+                pass
+                # log("Applying promotion bonus")
+            finalvalue += 8
+        if color == chess.BLACK and move.to_square in chess.SquareSet(chess.BB_RANK_1):
+            if (verbose):
+                pass
+                # log("Applying promotion bonus")
+            finalvalue += 8
+
+    return finalvalue
+
+
+
 def AnalyzeFen(fen):
     print("Analyzing position... ")
     global verbose
@@ -233,7 +241,7 @@ def LukasEngine(board):
     return move
 
 
-def PlayGame(player1,p1name, player2, p2name):
+def PlayGame(player1, p1name, player2, p2name):
     board = chess.Board()
     starttime = time.time()
     print(board)
