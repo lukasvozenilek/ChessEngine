@@ -1,23 +1,19 @@
-import chess, random, time, math, chess.pgn, multiprocessing
+import chess, random, time, math, chess.pgn, chess.engine
 
 firstmovesdict = {}
 
-
 # Settings
 maxdepth = 3
-random_mag = 0.25
-centerbonus = 0.5
-centerattackbonus = 0.5
+random_mag = 0
+centerbonus = 0.25
+centerattackbonus = 0.25
 checkbonus = 0.5
 endbonus = 15
-
-# Number of cores to utilize
-usecores = 2
+castlebonus = 0.5
 
 earlycurve_base = 1.2
 earlycurve_k = 0.3
 earlycurve_o = 7
-
 
 global moves_checked
 
@@ -29,7 +25,7 @@ pointsdict = {chess.PAWN: 1,
               chess.BISHOP: 3,
               chess.ROOK: 5,
               chess.QUEEN: 8,
-              chess.KING: 20
+              chess.KING: 0
               }
 
 # Development bonus
@@ -37,25 +33,32 @@ devbonus = {chess.PAWN: 0.5,
             chess.KNIGHT: 0.25,
             chess.BISHOP: 0.25,
             chess.ROOK: -0.25,
-            chess.QUEEN: 0,
+            chess.QUEEN: -0.25,
             chess.KING: -1
             }
 
+logbuffer = ""
+def log(string):
+    global logbuffer
+    #logbuffer += str(string)
+    f.write(str(string) + "\n")
 
-def analyzemove(movenum, firstcolor, color, aboard, depth):
+
+def analyzemove(aboard, alpha, beta, max, depth):
     global moves_checked
-    if (verbose):
-        print("\n\nAnalyzing " + str(color) + " at Depth: " + str(depth))
-        print(aboard)
+    global verbose
+    movenum = aboard.fullmove_number
+    color = aboard.turn
+    if verbose:
+        log("\n\nAnalyzing " + str(color) + " at Depth: " + str(depth))
+        log(aboard)
     all_moves = {}
     # Change the sign of points addition depending on if we are analyzing our vs opponent move
     for move in aboard.legal_moves:
-        moves_checked += 1
+        # moves_checked += 1
         if (verbose):
             if depth == 0:
-                print("Analyzing upper move: ^" + str(move))
-            else:
-                print("Analyzing move: " + str(move))
+                log("Analyzing upper move: ^" + str(move))
 
         finalvalue = 0
         movepiece = aboard.piece_at(move.from_square)
@@ -69,42 +72,53 @@ def analyzemove(movenum, firstcolor, color, aboard, depth):
             else:
                 piece = aboard.piece_at(move.to_square).piece_type
             if verbose:
-                print("Capture of value: " + str(pointsdict[piece]))
+                pass
+                #log("Capture of value: " + str(pointsdict[piece]))
             finalvalue += pointsdict[piece]
 
         earlygain = (earlycurve_k * math.pow(earlycurve_base, -movenum + earlycurve_o))
 
         # Development
         if color == chess.WHITE:
-            if (movepiece.piece_type == chess.PAWN and (move.from_square in chess.SquareSet(chess.BB_RANK_2))) or (move.from_square in chess.SquareSet(chess.BB_RANK_1)):
+            if (movepiece.piece_type == chess.PAWN and (move.from_square in chess.SquareSet(chess.BB_RANK_2))) or (
+                    move.from_square in chess.SquareSet(chess.BB_RANK_1)):
                 devbonusi = earlygain * devbonus[movepiece.piece_type]
                 if verbose:
-                    print("Applying development bonus of " + str(devbonusi))
+                    #log("Applying development bonus of " + str(devbonusi))
+                    pass
                 finalvalue += devbonusi
         if color == chess.BLACK:
-            if (movepiece.piece_type == chess.PAWN and (move.from_square in chess.SquareSet(chess.BB_RANK_7))) or (move.from_square in chess.SquareSet(chess.BB_RANK_8)):
+            if (movepiece.piece_type == chess.PAWN and (move.from_square in chess.SquareSet(chess.BB_RANK_7))) or (
+                    move.from_square in chess.SquareSet(chess.BB_RANK_8)):
                 devbonusi = earlygain * devbonus[movepiece.piece_type]
                 if verbose:
-                    print("Applying development bonus of " + str(devbonusi))
+                    pass
+                    #log("Applying development bonus of " + str(devbonusi))
                 finalvalue += devbonusi
 
         # Center position
         if move.to_square in chess.SquareSet(chess.BB_CENTER):
             if verbose:
-                print("Applying center position bonus")
+                pass
+                #log("Applying center position bonus")
             finalvalue += earlygain * centerbonus
 
         # Check
         if aboard.gives_check(move):
             finalvalue += checkbonus
 
+        if aboard.is_castling(move):
+            finalvalue += castlebonus
+
         # Push move for the following points
         aboard.push(move)
 
         # Center attack
         if verbose & (len(chess.SquareSet(chess.BB_CENTER) & aboard.attacks(move.to_square)) > 0):
-            print("Applying center attack bonus of: " + str(earlygain * centerattackbonus * len(chess.SquareSet(chess.BB_CENTER) & aboard.attacks(move.to_square))))
-        finalvalue += earlygain * centerattackbonus * len(chess.SquareSet(chess.BB_CENTER) & aboard.attacks(move.to_square))
+            pass
+            #log("Applying center attack bonus of: " + str(earlygain * centerattackbonus * len(chess.SquareSet(chess.BB_CENTER) & aboard.attacks(move.to_square))))
+        finalvalue += earlygain * centerattackbonus * len(
+            chess.SquareSet(chess.BB_CENTER) & aboard.attacks(move.to_square))
 
         # Mates
         if aboard.is_checkmate():
@@ -125,98 +139,141 @@ def analyzemove(movenum, firstcolor, color, aboard, depth):
             currank = chess.square_rank(move.from_square)
             if color == chess.WHITE and move.to_square in chess.SquareSet(chess.BB_RANK_8):
                 if (verbose):
-                    print("Applying promotion bonus")
+                    pass
+                    #log("Applying promotion bonus")
                 finalvalue += 8
             if color == chess.BLACK and move.to_square in chess.SquareSet(chess.BB_RANK_1):
                 if (verbose):
-                    print("Applying promotion bonus")
+                    pass
+                    #log("Applying promotion bonus")
                 finalvalue += 8
 
         # Runs next depth
         if depth < maxdepth:
-            if color == chess.WHITE:
-                nextcolor = chess.BLACK
-            else:
-                nextcolor = chess.WHITE
-
             aboard.push(move)
-            finalvalue += analyzemove(movenum + 1, firstcolor, nextcolor, aboard, depth + 1)[1]
+            finalvalue += analyzemove(aboard, alpha, beta, max, depth + 1)[1]
             aboard.pop()
 
         all_moves[move] = finalvalue
     if depth < maxdepth:
-        if (verbose):
-            print("\n\n\n##################################")
-            print("SUMMARY OF DEPTH " + str(depth))
+        if verbose:
+            log("\n\n\n##################################")
+            log("SUMMARY OF DEPTH " + str(depth))
     if len(all_moves) == 0:
         bestMove = ("", 10)
     else:
         sortedMoves = sorted(all_moves.items(), key=lambda x: x[1], reverse=True)
         bestMove = sortedMoves[0]
-
-        if (verbose):
-            print("Best move " + str(bestMove[0]) + " had value of " + str(bestMove[1]))
+        if verbose:
+            log(sortedMoves)
+            log("\n\nBest move " + str(bestMove[0]) + " had value of " + str(bestMove[1]))
 
     # When passing the best move's value upwards we need to sign it to benefit the above depth
     if (depth == 0):
         sign = 1
-        if (verbose):
-            print(sortedMoves)
     else:
         sign = -1
     return (bestMove[0], sign * bestMove[1])
 
 
-board = chess.Board()
-print(board)
-i = 0
-moves_checked = 0
 
-game = chess.pgn.Game()
-game.headers["White"] = "LukasEngine"
-game.headers["Black"] = "LukasEngine"
-game.setup(board)
-node = game
+'''
+def alphaBetaMax(alpha, beta, depthleft):
+    if (depthleft == 0): return evaluate()
+    for (all moves):
+        score = alphaBetaMin(alpha, beta, depthleft - 1)
+        if (score >= beta):
+            return beta  # fail hard beta-cutoff
+        if (score > alpha):
+            alpha = score  # alpha acts like max in MiniMax
+    return alpha
 
-while not board.is_game_over(claim_draw=True):
-    # Loops until legal move is entered]
-    if False:
-        while True:
-            move = input("Move: ")
-            try:
-                board.parse_san(move)
-                break
-            except:
-                print("Invalid or illegal move")
 
-        board.push_san(move)
-        print(board)
-    else:
-        starttime = time.time()
-        # Analyze moves here
-        mymove = analyzemove(i, chess.WHITE, chess.WHITE, board, 0)[0]
-        node = node.add_variation(mymove)
-        mymove = board.san(mymove)
-        board.push_san(mymove)
-        print(f'{moves_checked:,}' + " possible moves analysed!")
-        print(f'{moves_checked / (time.time() - starttime):,}' " moves/second")
-        moves_checked = 0
-        print("\n\nMOVE: " + mymove)
-        print(board)
+def alphaBetaMin(alpha, beta, depthleft)
+    if (depthleft == 0): return -evaluate()
+    for (all moves):
+        score = alphaBetaMax(alpha, beta, depthleft - 1)
+        if (score <= alpha):
+            return alpha  # fail hard alpha-cutoff
+        if (score < beta):
+            beta = score  # beta acts like min in MiniMax
+    return beta
 
+'''
+
+
+def AnalyzeFen(fen):
+    print("Analyzing position... ")
+    global verbose
+    verbose = True
+    board = chess.Board(fen)
+    move = analyzemove(board.turn, board.turn, board, 0)[0]
+    print("Analysis complete")
+    verbose = False
+
+
+def Human(board):
+    while True:
+        move = input("Your turn to move: ")
+        try:
+            move = board.parse_san(move)
+            break
+        except:
+            print("Invalid or illegal move")
+    return move
+
+
+def LukasEngine(board):
+    global moves_checked
     starttime = time.time()
-    # Analyze moves here
-    mymove = analyzemove(i, chess.BLACK, chess.BLACK, board, 0)[0]
-    node = node.add_variation(mymove)
-    mymove = board.san(mymove)
-    board.push_san(mymove)
-    print(f'{moves_checked:,}' + " possible moves analysed!")
-    print(f'{moves_checked/(time.time() - starttime):,}' " moves/second")
+    move = analyzemove(board, -10, 10, True, 0)[0]
+    # log()(f'{moves_checked:,}' + " possible moves analysed!")
+    # log()(f'{moves_checked / (time.time() - starttime):,}' " moves/second")
     moves_checked = 0
-    print("\n\nMOVE: " + mymove)
-    print(board)
+    return move
 
-game.headers["Result"] = board.result()
-print("Game Over!")
-print("PGN:\n")
-print(game)
+
+def PlayGame(player1,p1name, player2, p2name):
+    board = chess.Board()
+    starttime = time.time()
+    print(board)
+    game = chess.pgn.Game()
+    game.headers["White"] = p1name
+    game.headers["Black"] = p2name
+    game.setup(board)
+    node = game
+
+    while not board.is_game_over(claim_draw=True):
+        move = player1(board)
+        node = node.add_variation(move)
+        print("\n\nPlayer 1's Move: " + str(board.san(move)))
+        board.push(move)
+        print(board)
+
+        move = player2(board)
+        node = node.add_variation(move)
+        print("\n\nPlayer 2's Move: " + str(board.san(move)))
+        board.push(move)
+        print(board)
+
+    game.headers["Result"] = board.result()
+    print("Game over! Result: " + board.result())
+    print("Total time: " + str(time.time() - starttime) + " seconds")
+    print("PGN:\n")
+    print(game)
+
+
+engine = chess.engine.SimpleEngine.popen_uci("C:/Users/lvoze/stockfish_12_win_x64/stockfish_20090216_x64.exe")
+def StockFish(board):
+    move = engine.play(board, chess.engine.Limit(time=0.05))
+    return move.move
+
+
+f = open("log.txt", "w")
+logbuffer = ""
+
+#PlayGame(LukasEngine, "LukasEngine", StockFish, "StockFish")
+PlayGame(Human, "Lukas", LukasEngine, "LukasEngine")
+#AnalyzeFen("r1bqk2r/ppnpppbp/6p1/4n3/B1PN4/2N5/PP3PPP/R1BQK2R w KQkq - 0 10")
+
+f.close()
