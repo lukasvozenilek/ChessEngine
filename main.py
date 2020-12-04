@@ -1,4 +1,4 @@
-import chess, random, time, math, chess.pgn, chess.engine
+import chess, random, time, math, chess.pgn, chess.engine, datetime
 
 firstmovesdict = {}
 
@@ -37,11 +37,11 @@ devbonus = {chess.PAWN: 0.5,
             chess.KING: -1
             }
 
-logbuffer = ""
+commands = {"a": "Analyze", "p": "Play", "h": "Help", "q": "Quit"}
+
+
 def log(string):
-    global logbuffer
-    #logbuffer += str(string)
-    f.write(str(string) + "\n")
+    logfile.write(str(string) + "\n")
 
 
 def analyzemove(aboard, alpha, beta, max, depth):
@@ -210,20 +210,12 @@ def evaluatemove(board, move):
 
 
 
-def AnalyzeFen(fen):
-    print("Analyzing position... ")
-    global verbose
-    verbose = True
-    board = chess.Board(fen)
-    move = analyzemove(board.turn, board.turn, board, 0)[0]
-    print("Analysis complete")
-    verbose = False
-
-
 def Human(board):
     while True:
         move = input("Your turn to move: ")
         try:
+            if move == "/e":
+                return move
             move = board.parse_san(move)
             break
         except:
@@ -242,6 +234,7 @@ def LukasEngine(board):
 
 
 def PlayGame(player1, p1name, player2, p2name):
+    pgnfile = open("lastgame.pgn", "w")
     board = chess.Board()
     starttime = time.time()
     print(board)
@@ -253,35 +246,95 @@ def PlayGame(player1, p1name, player2, p2name):
 
     while not board.is_game_over(claim_draw=True):
         move = player1(board)
+        if move == "/e":
+            break
         node = node.add_variation(move)
         print("\n\nPlayer 1's Move: " + str(board.san(move)))
         board.push(move)
         print(board)
 
         move = player2(board)
+        if move == "/e":
+            break
         node = node.add_variation(move)
         print("\n\nPlayer 2's Move: " + str(board.san(move)))
         board.push(move)
         print(board)
 
     game.headers["Result"] = board.result()
+    game.headers["Date"] = datetime.datetime.today().strftime('%Y-%m-%d')
     print("Game over! Result: " + board.result())
     print("Total time: " + str(time.time() - starttime) + " seconds")
-    print("PGN:\n")
-    print(game)
+    pgnfile.write(str(game))
+    pgnfile.close()
 
 
-engine = chess.engine.SimpleEngine.popen_uci("C:/Users/lvoze/stockfish_12_win_x64/stockfish_20090216_x64.exe")
+
+def AnalyzeFen(fen):
+    global verbose
+    verbose = True
+    board = chess.Board(fen)
+    move = analyzemove(board, -10, 10, True, 0)[0]
+    verbose = False
+
+
+
 def StockFish(board):
     move = engine.play(board, chess.engine.Limit(time=0.05))
     return move.move
 
 
-f = open("log.txt", "w")
-logbuffer = ""
+def ParsePlayer(string):
+    if string == "h":
+        return (Human, "Human")
+    if string == "s":
+        return (StockFish, "StockFish")
+    if string == "l":
+        return (LukasEngine, "LukasEngine")
 
-#PlayGame(LukasEngine, "LukasEngine", StockFish, "StockFish")
-PlayGame(Human, "Lukas", LukasEngine, "LukasEngine")
-#AnalyzeFen("r1bqk2r/ppnpppbp/6p1/4n3/B1PN4/2N5/PP3PPP/R1BQK2R w KQkq - 0 10")
 
-f.close()
+
+
+if __name__ == "__main__":
+    # Open engine and files
+    engine = chess.engine.SimpleEngine.popen_uci("C:/Users/lvoze/stockfish_12_win_x64/stockfish_20090216_x64.exe")
+    logfile = open("log.txt", "w")
+
+
+    print("Welcome to Lukas's Chess Engine!")
+    for item in commands:
+        print(item + ": " + commands[item])
+    # Main program loop
+    while True:
+        # Input loops
+        while True:
+            cmd = input(">")
+            if cmd in commands:
+                break
+            else:
+                print("Command not found")
+
+        if cmd == "a":
+            FEN = input("Enter FEN: ")
+            depth = input("Enter Depth: ")
+            print("Analyzing...")
+            AnalyzeFen(FEN)
+            print("Analysis complete.")
+
+        elif cmd == "p":
+            p1 = input("White player (h, l or s): ")
+            p2 = input("Black player (h, l or s): ")
+            if (p1 == "l") or (p2 == "l"):
+                depth = input("Enter Depth: ")
+
+            print("Starting game!")
+            PlayGame(ParsePlayer(p1)[0], ParsePlayer(p1)[1], ParsePlayer(p2)[0], ParsePlayer(p2)[1])
+
+        elif cmd == "h":
+            for item in commands:
+                print(item + ": " + commands[item])
+        elif cmd == "q":
+            break
+
+    print("Quitting")
+    logfile.close()
