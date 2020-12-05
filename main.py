@@ -7,7 +7,7 @@ maxdepth = 1
 random_mag = 0
 centerbonus = 0.25
 centerattackbonus = 0.25
-checkbonus = 0.5
+checkbonus = 1
 endbonus = 15
 castlebonus = 0.5
 
@@ -44,52 +44,135 @@ def log(string):
     logfile.write(str(string) + "\n")
 
 
-def analyzemove(aboard, alpha, beta, max, depth):
-    global moves_checked
-    global verbose
-    color = aboard.turn
-    if verbose:
-        log("\n\nAnalyzing " + str(color) + " at Depth: " + str(depth))
-        log(aboard)
-    all_moves = {}
-    for move in aboard.legal_moves:
-        # moves_checked += 1
-        if (verbose):
-            if depth == 0:
-                log("Analyzing upper move: ^" + str(move))
+def presort(board, movelist):
+    return sorted(movelist, key=lambda x: "x" in board.san(x), reverse=True)
 
-        finalvalue = evaluatemove(aboard, move)
 
-        # Runs next depth
-        if depth < maxdepth:
-            aboard.push(move)
-            finalvalue += analyzemove(aboard, alpha, beta, max, depth + 1)[1]
-            aboard.pop()
+def analyzemove(board, move, alpha, beta, maximize, depthleft):
+    # If on last depth return just the evaluation of the given move
+    if depthleft == 0:
+        score = evaluatemove(board, move)
+        if maximize:
+            score = -score
+        #print("Last depth, score " + str(score))
+        return (move, score)
 
-        all_moves[move] = finalvalue
-    if depth < maxdepth:
-        if verbose:
-            log("\n\n\n##################################")
-            log("SUMMARY OF DEPTH " + str(depth))
-    if len(all_moves) == 0:
-        bestMove = ("", 10)
+
+    pushed = False
+    if move is not None:
+        thismovescore = evaluatemove(board, move)
+        #print("This moves score is " + str(thismovescore))
+        board.push(move)
+        pushed = True
     else:
-        sortedMoves = sorted(all_moves.items(), key=lambda x: x[1], reverse=True)
-        bestMove = sortedMoves[0]
-        if verbose:
-            log(sortedMoves)
-            log("\n\nBest move " + str(bestMove[0]) + " had value of " + str(bestMove[1]))
+        thismovescore = None
 
-    # When passing the best move's value upwards we need to sign it to benefit the above depth
-    if (depth == 0):
-        sign = 1
+    if board.legal_moves.count() == 0:
+        board.pop()
+        return (move, -1000)
+
+    if maximize:
+        maxScore = -10000
+        for move in presort(board, board.legal_moves):
+            #print("Maxing move " + str(move))
+            score = analyzemove(board, move, alpha, beta, False, depthleft-1)[1]
+            if (thismovescore is not None):
+                score -= thismovescore
+            if score > maxScore:
+                bestmove = move
+            maxScore = max(score, maxScore)
+            alpha = max(alpha, score)
+            if beta <= alpha:
+                #print("Beta hard cutoff")
+                break
+        if pushed:
+            board.pop()
+        #print(maxScore)
+        #print("LEAVING DEPTH, RESULTS:\n")
+        #print("Best move: " + str(maxScore) + ":" + str(bestmove))
+        #print("Alpha: " + str(alpha))
+        #print("Beta: " + str(beta))
+        return (bestmove, maxScore)
     else:
-        sign = -1
-    return (bestMove[0], sign * bestMove[1])
-
+        minScore = 10000
+        for move in presort(board, board.legal_moves):
+            #print("Minning move " + str(move))
+            score = analyzemove(board, move, alpha, beta, True, depthleft-1)[1]
+            if (thismovescore is not None):
+                score += thismovescore
+            #print(score)
+            #print(minScore)
+            if score < minScore:
+                worstMove = move
+            minScore = min(score, minScore)
+            beta = min(beta, score)
+            #print(alpha)
+            #print(beta)
+            if beta <= alpha:
+                #print("Alpha hard cutoff")
+                break
+        if pushed:
+            board.pop()
+        #print("LEAVING DEPTH, RESULTS:\n")
+        #print("Worst move: " + str(worstMove) + ":" + str(minScore))
+        #print("Alpha: " + str(alpha))
+        #print("Beta: " + str(beta))
+        return (worstMove, minScore)
 
 
 '''
+
+def analyzemove(board, move, alpha, beta, max, depthleft):
+    # If on last depth return just the evaluation of the given move
+    if depthleft == 0:
+        score = evaluatemove(board, move)
+        print("Last depth, score " + str(score))
+        return score
+
+    print("##############ENTERING NEXT DEPTH###########")
+    color = board.turn
+    all_moves = {}
+
+    pushedmove = False
+    # If a move was passed to us, push it on the board
+    if move is not None:
+        board.push(move)
+        pushedmove = True
+    
+    
+    for move in presort(board, board.legal_moves):
+        print("Evaluating move " + str(move))
+        movescore = analyzemove(board, move, alpha, beta, not max, depthleft - 1)
+        if max:
+            if (movescore >= beta):
+                print("Beta hard cutoff")
+                return beta  # fail hard beta-cutoff
+            if (movescore > alpha):
+                alpha = movescore  # alpha acts like max in MiniMax
+                print("Setting new alpha of " + str(alpha))
+            #return alpha
+        else:
+            if (movescore <= alpha):
+                print("Alpha hard cutoff")
+                return alpha  # fail hard alpha cutoff
+            if (movescore < beta):
+                beta = movescore  # beta acts like min in MiniMax
+                print("Setting new beta of " + str(beta))
+            #return beta
+        #all_moves[move] = finalvalue
+
+    if pushedmove:
+        board.pop()
+
+    print("##############LEAVING DEPTH###########")
+    if max:
+        return alpha
+    else:
+        return beta
+
+beta is the minimum score the maximizing play is assured of
+alpha is the maximum score the minimizing player is assured of
+
 def alphaBetaMax(alpha, beta, depthleft):
     if (depthleft == 0): return evaluate()
     for (all moves):
@@ -137,15 +220,11 @@ def evaluatemove(board, move):
     earlygain = (earlycurve_k * math.pow(earlycurve_base, -movenum + earlycurve_o))
 
     # Development
-    if board == chess.WHITE:
-        if (movepiece.piece_type == chess.PAWN and (move.from_square in chess.SquareSet(chess.BB_RANK_2))) or (
-                move.from_square in chess.SquareSet(chess.BB_RANK_1)):
+    if color == chess.WHITE:
+        if (movepiece.piece_type == chess.PAWN and (move.from_square in chess.SquareSet(chess.BB_RANK_2))) or (move.from_square in chess.SquareSet(chess.BB_RANK_1)):
             devbonusi = earlygain * devbonus[movepiece.piece_type]
-            if verbose:
-                # log("Applying development bonus of " + str(devbonusi))
-                pass
             finalvalue += devbonusi
-    if board == chess.BLACK:
+    if color == chess.BLACK:
         if (movepiece.piece_type == chess.PAWN and (move.from_square in chess.SquareSet(chess.BB_RANK_7))) or (
                 move.from_square in chess.SquareSet(chess.BB_RANK_8)):
             devbonusi = earlygain * devbonus[movepiece.piece_type]
@@ -209,7 +288,6 @@ def evaluatemove(board, move):
     return finalvalue
 
 
-
 def Human(board):
     while True:
         move = input("Your turn to move: ")
@@ -226,7 +304,7 @@ def Human(board):
 def LukasEngine(board):
     global moves_checked
     starttime = time.time()
-    move = analyzemove(board, -10, 10, True, 0)[0]
+    move = analyzemove(board, None, -10, 10, True, 4)[0]
     # log()(f'{moves_checked:,}' + " possible moves analysed!")
     # log()(f'{moves_checked / (time.time() - starttime):,}' " moves/second")
     moves_checked = 0
@@ -245,6 +323,8 @@ def PlayGame(player1, p1name, player2, p2name):
     node = game
 
     while not board.is_game_over(claim_draw=True):
+        if board.is_game_over():
+            break
         move = player1(board)
         if move == "/e":
             break
@@ -253,6 +333,8 @@ def PlayGame(player1, p1name, player2, p2name):
         board.push(move)
         print(board)
 
+        if board.is_game_over():
+            break
         move = player2(board)
         if move == "/e":
             break
@@ -274,7 +356,10 @@ def AnalyzeFen(fen):
     global verbose
     verbose = True
     board = chess.Board(fen)
-    move = analyzemove(board, -10, 10, True, 0)[0]
+
+    results = analyzemove(board, None, -10000, 10000, True, 4)
+    print("\n\n")
+    print(results)
     verbose = False
 
 
@@ -293,6 +378,8 @@ def ParsePlayer(string):
         return (LukasEngine, "LukasEngine")
 
 
+#AnalyzeFen("rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 2")
+#AnalyzeFen("rnb1kbnr/ppp1pppp/8/3q4/8/8/PPPP1PPP/RNBQKBNR w KQkq - 0 3")
 
 
 if __name__ == "__main__":
@@ -337,4 +424,5 @@ if __name__ == "__main__":
             break
 
     print("Quitting")
+    engine.quit()
     logfile.close()
