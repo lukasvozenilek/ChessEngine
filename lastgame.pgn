@@ -1,9 +1,0 @@
-[Event "?"]
-[Site "?"]
-[Date "2020-12-04"]
-[Round "?"]
-[White "LukasEngine"]
-[Black "StockFish"]
-[Result "0-1"]
-
-1. e4 e5 2. Bc4 d6 3. d4 Nd7 4. Nf3 Be7 5. Nc3 Ngf6 6. Ng5 O-O 7. Nxf7 Rxf7 8. Bxf7+ Kxf7 9. Qd3 exd4 10. Qc4+ Kf8 11. Qxd4 Qe8 12. Qd3 Qf7 13. O-O b6 14. Bg5 Nc5 15. Qe3 h6 16. Bxh6 Ng4 17. Bxg7+ Qxg7 18. Qf3+ Kg8 19. Nd5 Bh4 20. g3 Bd8 21. Qc3 Qh6 22. h4 Ne5 23. Rfe1 Bg4 24. Kg2 Bf3+ 25. Kg1 Bxe4 26. Rxe4 Nxe4 27. Qe3 Qxe3 28. fxe3 Nxg3 29. Kh2 Nf5 30. Rg1+ Kf7 31. Kh3 Nc4 32. Rf1 Ke6 33. Nf4+ Kd7 34. Ng6 Ncxe3 35. Rf4 a6 36. Nf8+ Ke7 37. Ng6+ Kf6 38. Nf8 Be7 39. Nh7+ Kg6 40. Ng5 Bxg5 41. Rxf5 Kxf5 42. hxg5 Kf4 43. Kh2 Rg8 44. c3 Rxg5 45. Kh1 Kg3 46. b3 Kf2 47. c4 Rh5# 0-1
