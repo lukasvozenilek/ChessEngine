@@ -2,16 +2,17 @@ import chess, random, time, math, chess.pgn, chess.engine, datetime
 
 firstmovesdict = {}
 
-openingmoves = ["e4", "d4"]
+openingmoves = ["e4"]
 
 # Settings
 random_mag = 0
 centerbonus = 0.25
-centerattackbonus = 0.25
+centerattackbonus = 0.5
 checkbonus = 0.5
 endbonus = 15
 castlebonus = 0.5
-mobilitybonus = 0.25
+kingmobilitypenalty = 0.25
+captureimportant = 1.25
 
 earlycurve_base = 1.2
 earlycurve_k = 0.3
@@ -33,11 +34,11 @@ pointsdict = {chess.PAWN: 1,
               }
 
 # Development bonus
-devbonus = {chess.PAWN: 0.5,
-            chess.KNIGHT: 0.25,
-            chess.BISHOP: 0.25,
-            chess.ROOK: -0.25,
-            chess.QUEEN: -1,
+devbonus = {chess.PAWN: 0.75,
+            chess.KNIGHT: 0.5,
+            chess.BISHOP: 0.5,
+            chess.ROOK: -0.5,
+            chess.QUEEN: -2,
             chess.KING: -2
             }
 
@@ -60,6 +61,7 @@ kingtable_endgame = [
 
 def presort(board, movelist):
     return sorted(movelist, key=lambda x: "x" in board.san(x), reverse=True)
+
 
 # Evaluates current board material for both colors. Slow invocation.
 def evaluatematerial(board):
@@ -112,18 +114,13 @@ def abmax(board, move, alpha, beta, maximize, depthleft, material):
             score = depth_penalty * abmax(board, move, alpha, beta, False, depthleft - 1, material)[1]
             if (thismovescore is not None):
                 score -= thismovescore
-
             if not pushed:
                 print("Results of upper move ^" + str(move) + " are " + str(score))
-
             if score > maxScore:
-                #print("New best move found! " + str(move) + " " + str(score))
                 bestmove = move
             maxScore = max(score, maxScore)
             alpha = max(alpha, score)
-            #print("Ending AB: " + str(alpha) + " " + str(beta))
             if alpha >= beta:
-                #print("Beta cutoff")
                 break
         if pushed:
             board.pop()
@@ -131,25 +128,22 @@ def abmax(board, move, alpha, beta, maximize, depthleft, material):
     else:
         minScore = 10000
         for move in presort(board, board.legal_moves):
-            #print("\nNow analyzing next lower move " + str(move))
             score = depth_penalty * abmax(board, move, alpha, beta, True, depthleft - 1, material)[1]
             if (thismovescore is not None):
                 score += thismovescore
-            #print("Lower move had score: " + str(score))
             if score < minScore:
-                #print("New worst move found! " + str(move) + " " + str(score))
                 worstMove = move
             minScore = min(score, minScore)
             beta = min(beta, score)
             if beta <= alpha:
-                #print("Alpha cutoff")
                 break
         if pushed:
             board.pop()
         return worstMove, minScore
 
 
-
+def evaluatelegalkingmoves(board):
+    return len(list(filter(lambda x: "K" in board.san(x), board.legal_moves)))
 
 # Point distribution of a move on a given board
 def evaluatemove(board, move, material):
@@ -159,22 +153,27 @@ def evaluatemove(board, move, material):
     movepiece = board.piece_at(move.from_square)
     piecemap = board.piece_map()
     endgame = (len(piecemap) < 10) or math.fabs(material[0] - material[1]) > 8
-
     originalmat = material
-
-    # Get opponents previous
-    if len(board.move_stack) > 1:
-        lastmove = board.peek()
-        board.pop()
-        legalmoves = board.legal_moves.count()
-        board.push(lastmove)
 
     # Points distribution
     # End game bonuses
     if endgame:
+        # Evaluates king mobility
+        if len(board.move_stack) > 1:
+            lastmove = board.peek()
+            board.pop()
+            legalkingmoves = evaluatelegalkingmoves(board)
+            board.push(lastmove)
+        else:
+            legalkingmoves = None
+
         # End game pawn bonus
         if movepiece.piece_type == chess.PAWN:
-            finalvalue += 2
+            if color:
+                distance = 8 - chess.square_rank(move.to_square)
+            else:
+                distance = chess.square_rank(move.to_square)
+            finalvalue += 8 / ((distance * distance) + 1)
 
         # Incentivise moving king towards other pieces
         if movepiece.piece_type == chess.KING:
@@ -200,22 +199,17 @@ def evaluatemove(board, move, material):
                 finalvalue += totalgain
 
 
-
     # Capture
     if board.is_capture(move):
         if board.is_en_passant(move):
             piece = chess.PAWN
         else:
             piece = board.piece_at(move.to_square).piece_type
-        finalvalue += pointsdict[piece]
+        finalvalue += captureimportant * pointsdict[piece]
 
         # Pawns worth way more in endgame depending on closeness to end
         if piece == chess.PAWN and endgame:
-            if color:
-                distance = 8 - chess.square_rank(move.to_square)
-            else:
-                distance = chess.square_rank(move.to_square)
-            finalvalue += 8 / (distance * distance)
+            finalvalue += 8
 
         # If there was a capture, re-evaluate material
         material = evaluatematerial(board)
@@ -252,11 +246,12 @@ def evaluatemove(board, move, material):
         finalvalue += castlebonus
 
     if endgame:
-        if board.can_claim_threefold_repetition():
+        if board.can_claim_threefold_repetition() or board.can_claim_fifty_moves():
             if mymat > opmat:
                 finalvalue -= 100
             else:
                 finalvalue += 100
+
 
         # If I have less material, punish my kings movements based on the king mating table
         if mymat < opmat and movepiece == chess.KING:
@@ -267,13 +262,17 @@ def evaluatemove(board, move, material):
     # Push move for the following points
     board.push(move)
 
-    ''' Mobility not working right now
-    if len(board.move_stack) > 2:
-        newlegalmoves = board.legal_moves.count()
-        mobilitygain = max(mobilitybonus * (legalmoves - newlegalmoves), 0)
-        #print("Move " + str(move) + " has mobility gain of " + str(mobilitygain) + " from " + str(legalmoves) + " - " + str(newlegalmoves))
-        finalvalue += mobilitygain
-    '''
+    if endgame:
+        if board.is_fivefold_repetition():
+            if mymat > opmat:
+                finalvalue -= 100
+            else:
+                finalvalue += 100
+
+        if legalkingmoves is not None:
+            currentlegalkingmoves = evaluatelegalkingmoves(board)
+            mobilityless = kingmobilitypenalty * max(legalkingmoves - currentlegalkingmoves, 0)
+            finalvalue -= mobilityless
 
     # Center attack
     finalvalue += earlygain * centerattackbonus * len(chess.SquareSet(chess.BB_CENTER) & board.attacks(move.to_square))
@@ -385,6 +384,7 @@ def AnalyzeFen(fen, depth):
     global verbose
     verbose = True
     board = chess.Board(fen)
+    print(board)
     results = abmax(board, None, -10000, 10000, True, int(depth), None)
     print("\n\n")
     print(results)
@@ -392,7 +392,7 @@ def AnalyzeFen(fen, depth):
 
 
 def StockFish(board, depth):
-    move = engine.play(board, chess.engine.Limit(time=0.01))
+    move = engine.play(board, chess.engine.Limit(depth=int(depth)))
     return move.move
 
 
@@ -400,7 +400,7 @@ def ParsePlayer(string, depth=None):
     if string == "h":
         return (Human, "Human")
     if string == "s":
-        return (StockFish, "StockFish")
+        return (StockFish, "StockFish Depth " + str(depth))
     if string == "l":
         return (LukasEngine, "LukasEngine Depth " + str(depth))
 
@@ -438,11 +438,11 @@ if __name__ == "__main__":
             print("Please enter player configuration. (h)uman, (l)ukasengine or (s)tockfish")
 
             p1 = input("White: ")
-            if (p1 == "l"):
+            if (p1 == "l" or p1 == "s"):
                 depth1 = input("Enter Depth for p1: ")
 
             p2 = input("Black: ")
-            if (p2 == "l"):
+            if (p2 == "l" or p2 == "s"):
                 depth2 = input("Enter Depth for p2: ")
 
             startingpos = input("Starting position (blank for default): ")

@@ -1,461 +1,53 @@
-C:\Users\lvoze\git\ChessEngine\venv\Scripts\python.exe C:/Users/lvoze/git/ChessEngine/main.py
-Welcome to Lukas's Chess Engine!
-a: Analyze
-p: Play
-h: Help
-q: Quit
->a
-Enter FEN: 3r2kr/pb3pp1/1p3n1p/2b4q/3N1Pn1/2P1p1PP/PP1NQ3/R1B2K1R w - - 0 19
-Enter Depth: 3
-Analyzing...
-
-Now analyzing next lower move d8d4
-Lower move had score: 7.366670349311081
-
-Now analyzing next lower move b7h1
-Lower move had score: 5.466670349311081
-
-Now analyzing next lower move f6g4
-Lower move had score: -1.9004911616534041
-
-Now analyzing next lower move h5g4
-Lower move had score: 2.6199999999999997
-
-Now analyzing next lower move h5h3
-Lower move had score: 8.794999999999998
-
-Now analyzing next lower move c5d4
-Lower move had score: 1.487767676693192
-
-Now analyzing next lower move e3d2
-Lower move had score: 1.50375
-
-Now analyzing next lower move h8h7
-Lower move had score: 4.361741161653404
-
-Now analyzing next lower move g8f8
-Lower move had score: 4.417679293227231
-
-Now analyzing next lower move g8h7
-Lower move had score: 4.417679293227231
-
-Now analyzing next lower move d8f8
-Lower move had score: 4.361741161653404
-
-Now analyzing next lower move d8e8
-Lower move had score: 4.345758838346596
-
-Now analyzing next lower move d8c8
-Lower move had score: 7.971741161653403
-
-Now analyzing next lower move d8b8
-Lower move had score: 4.361741161653404
-
-Now analyzing next lower move d8a8
-Lower move had score: 4.361741161653404
-
-Now analyzing next lower move d8d7
-Lower move had score: 4.345758838346596
-
-Now analyzing next lower move d8d6
-Lower move had score: 4.345758838346596
-
-Now analyzing next lower move d8d5
-Lower move had score: 4.337767676693192
-
-Now analyzing next lower move b7c8
-Lower move had score: 5.7075
-
-Now analyzing next lower move b7a8
-Lower move had score: 4.337767676693192
-
-Now analyzing next lower move b7c6
-Lower move had score: 4.337767676693192
-
-Now analyzing next lower move b7a6
-Lower move had score: 2.4743893095284424
-
-Now analyzing next lower move b7d5
-Lower move had score: 4.337767676693192
-
-Now analyzing next lower move b7e4
-Lower move had score: 4.337767676693192
-
-Now analyzing next lower move b7f3
-Lower move had score: 4.337767676693192
-
-Now analyzing next lower move b7g2
-Lower move had score: 5.165906986221634
-
-Now analyzing next lower move f6e8
-Lower move had score: 4.366402672617889
-
-Now analyzing next lower move f6h7
-Lower move had score: 4.366402672617889
-
-Now analyzing next lower move f6d7
-Lower move had score: 4.358411510964485
-
-Now analyzing next lower move f6d5
-Lower move had score: 4.358411510964485
-
-Now analyzing next lower move f6e4
-Lower move had score: 4.358411510964485
-
-Now analyzing next lower move h5g6
-Lower move had score: 10.218335174655541
-
-Now analyzing next lower move h5g5
-Lower move had score: 10.21667034931108
-
-Now analyzing next lower move h5f5
-Lower move had score: 4.329776515039788
-
-Now analyzing next lower move h5e5
-Lower move had score: 4.321785353386384
-
-Now analyzing next lower move h5d5
-Lower move had score: 4.321785353386384
-
-Now analyzing next lower move h5h4
-Lower move had score: 4.35375
-
-Now analyzing next lower move c5f8
-Lower move had score: 4.35375
-
-Now analyzing next lower move c5e7
-Lower move had score: 4.35375
-
-Now analyzing next lower move c5d6
-Lower move had score: 4.345758838346596
-
-Now analyzing next lower move c5b4
-Lower move had score: 4.35375
-
-Now analyzing next lower move c5a3
-Lower move had score: 4.35375
-
-Now analyzing next lower move g7g6
-Lower move had score: 4.344094013002137
-
-Now analyzing next lower move a7a6
-Lower move had score: 4.337767676693192
-
-Now analyzing next lower move b6b5
-Lower move had score: 4.35375
-
-Now analyzing next lower move e3e2
-Lower move had score: 3.3768893095284422
-
-Now analyzing next lower move g7g5
-Lower move had score: 10.20401767669319
-
-Now analyzing next lower move a7a5
-Lower move had score: 4.337767676693192
-Results of upper move ^e2g4 are -1.8054666035707339
-
-Now analyzing next lower move d8d4
-Lower move had score: 2.6970582692555087
-
-Now analyzing next lower move b7h1
-Lower move had score: -1.0332470759802697
-
-Now analyzing next lower move h5h3
-Lower move had score: 6.813908911017593
-
-Now analyzing next lower move c5d4
-Lower move had score: 0.8920582692555092
-
-Now analyzing next lower move g4e3
-Lower move had score: -7.108366604798423
-Results of upper move ^e2e3 are -6.752948274558501
-
-Now analyzing next lower move d8d4
-Lower move had score: 7.360344013002137
-
-Now analyzing next lower move b7h1
-Lower move had score: 5.454017676693192
-
-Now analyzing next lower move f6g4
-Lower move had score: 9.26833517465554
-
-Now analyzing next lower move h5g4
-Lower move had score: 9.27
-
-Now analyzing next lower move h5h1
-Lower move had score: 103.2409823233068
-
-Now analyzing next lower move c5d4
-Lower move had score: 7.360344013002137
-
-Now analyzing next lower move e3d2
-Lower move had score: 7.376326336308945
-
-Now analyzing next lower move h8h7
-Lower move had score: 10.234317497962348
-
-Now analyzing next lower move g8f8
-Lower move had score: 10.290255629536176
-
-Now analyzing next lower move g8h7
-Lower move had score: 10.290255629536176
-
-Now analyzing next lower move d8f8
-Lower move had score: 10.234317497962348
-
-Now analyzing next lower move d8e8
-Lower move had score: 10.218335174655541
-
-Now analyzing next lower move d8c8
-Lower move had score: 10.234317497962348
-
-Now analyzing next lower move d8b8
-Lower move had score: 10.234317497962348
-
-Now analyzing next lower move d8a8
-Lower move had score: 10.234317497962348
-
-Now analyzing next lower move d8d7
-Lower move had score: 10.218335174655541
-
-Now analyzing next lower move d8d6
-Lower move had score: 10.218335174655541
-
-Now analyzing next lower move d8d5
-Lower move had score: 10.210344013002137
-
-Now analyzing next lower move b7c8
-Lower move had score: 10.226326336308944
-
-Now analyzing next lower move b7a8
-Lower move had score: 10.210344013002137
-
-Now analyzing next lower move b7c6
-Lower move had score: 10.210344013002137
-
-Now analyzing next lower move b7a6
-Lower move had score: 10.226326336308944
-
-Now analyzing next lower move b7d5
-Lower move had score: 10.210344013002137
-
-Now analyzing next lower move b7e4
-Lower move had score: 10.210344013002137
-
-Now analyzing next lower move b7f3
-Lower move had score: 10.210344013002137
-
-Now analyzing next lower move b7g2
-Lower move had score: 5.229170349311081
-
-Now analyzing next lower move f6e8
-Lower move had score: 10.226326336308944
-
-Now analyzing next lower move f6h7
-Lower move had score: 10.226326336308944
-
-Now analyzing next lower move f6d7
-Lower move had score: 10.218335174655541
-
-Now analyzing next lower move f6d5
-Lower move had score: 10.218335174655541
-
-Now analyzing next lower move f6e4
-Lower move had score: 10.218335174655541
-
-Now analyzing next lower move h5g6
-Lower move had score: 3.91348784727343
-
-Now analyzing next lower move h5g5
-Lower move had score: 10.20401767669319
-
-Now analyzing next lower move h5f5
-Lower move had score: 10.202352851348733
-
-Now analyzing next lower move h5e5
-Lower move had score: 10.194361689695329
-
-Now analyzing next lower move h5d5
-Lower move had score: 3.8895143623132187
-
-Now analyzing next lower move h5h4
-Lower move had score: 10.213673663691054
-
-Now analyzing next lower move h5h3
-Lower move had score: 9.738673663691054
-
-Now analyzing next lower move h5h2
-Lower move had score: 10.219999999999999
-
-Now analyzing next lower move c5f8
-Lower move had score: 10.226326336308944
-
-Now analyzing next lower move c5e7
-Lower move had score: 10.226326336308944
-
-Now analyzing next lower move c5d6
-Lower move had score: 10.218335174655541
-
-Now analyzing next lower move c5b4
-Lower move had score: 10.226326336308944
-
-Now analyzing next lower move c5a3
-Lower move had score: 10.226326336308944
-
-Now analyzing next lower move g7g6
-Lower move had score: 10.210344013002137
-
-Now analyzing next lower move a7a6
-Lower move had score: 10.210344013002137
-
-Now analyzing next lower move b6b5
-Lower move had score: 10.226326336308944
-
-Now analyzing next lower move g7g5
-Lower move had score: 10.197691340384246
-
-Now analyzing next lower move a7a5
-Lower move had score: 10.210344013002137
-Results of upper move ^h3g4 are 3.695038644197558
-
-Now analyzing next lower move d8d2
-Lower move had score: 1.6755732600733315
-Results of upper move ^d4e6 are 1.591794597069665
-
-Now analyzing next lower move d8d2
-Lower move had score: 1.6839850091821775
-Results of upper move ^d4c6 are 1.5997857587230686
-
-Now analyzing next lower move d8d2
-Lower move had score: 1.6755732600733315
-Results of upper move ^d4f5 are 1.591794597069665
-
-Now analyzing next lower move d8d2
-Lower move had score: 1.6755732600733315
-Results of upper move ^d4b5 are 1.591794597069665
-
-Now analyzing next lower move d8d2
-Lower move had score: 1.6839850091821775
-Results of upper move ^d4f3 are 1.5997857587230686
-
-Now analyzing next lower move d8d2
-Lower move had score: 1.6755732600733315
-Results of upper move ^d4b3 are 1.591794597069665
-
-Now analyzing next lower move d8d2
-Lower move had score: 1.6755732600733315
-Results of upper move ^d4c2 are 1.591794597069665
-
-Now analyzing next lower move d8d4
-Lower move had score: 1.6591703493110812
-Results of upper move ^e2a6 are 1.5762118318455272
-
-Now analyzing next lower move d8d4
-Lower move had score: 1.6591703493110812
-Results of upper move ^e2b5 are 1.5762118318455272
-
-Now analyzing next lower move d8d4
-Lower move had score: 1.6886465201466627
-Results of upper move ^e2c4 are 1.6042141941393295
-
-Now analyzing next lower move d8d4
-Lower move had score: 1.6759938475287735
-Results of upper move ^e2f3 are 1.5921941551523346
-
-Now analyzing next lower move d8d4
-Lower move had score: 1.6886465201466627
-Results of upper move ^e2d3 are 1.6042141941393295
-
-Now analyzing next lower move d8d4
-Lower move had score: 1.6591703493110812
-Results of upper move ^e2h2 are 1.5762118318455272
-
-Now analyzing next lower move d8d4
-Lower move had score: 1.6759938475287735
-Results of upper move ^e2g2 are 1.5921941551523346
-
-Now analyzing next lower move d8d4
-Lower move had score: 1.6591703493110812
-Results of upper move ^e2f2 are 1.5762118318455272
-
-Now analyzing next lower move d8d4
-Lower move had score: 1.6591703493110812
-Results of upper move ^e2e1 are 1.5762118318455272
-
-Now analyzing next lower move d8d4
-Lower move had score: 1.6591703493110812
-Results of upper move ^e2d1 are 1.5762118318455272
-
-Now analyzing next lower move d8d4
-Lower move had score: 1.6675820984199274
-Results of upper move ^d2e4 are 1.584202993498931
-
-Now analyzing next lower move d8d4
-Lower move had score: 1.6675820984199274
-Results of upper move ^d2c4 are 1.584202993498931
-
-Now analyzing next lower move d8d4
-Lower move had score: 1.6759938475287735
-Results of upper move ^d2f3 are 1.5921941551523346
-
-Now analyzing next lower move d8d4
-Lower move had score: 1.6675820984199274
-Results of upper move ^d2b3 are 1.584202993498931
-
-Now analyzing next lower move d8d4
-Lower move had score: 1.6591703493110812
-Results of upper move ^d2b1 are 1.5762118318455272
-
-Now analyzing next lower move d8d4
-Lower move had score: 1.650758600202235
-Results of upper move ^h1h2 are 1.568220670192123
-
-Now analyzing next lower move d8d4
-Lower move had score: 1.650758600202235
-Results of upper move ^h1g1 are 1.568220670192123
-
-Now analyzing next lower move d8d4
-Lower move had score: 1.5918763564403122
-Results of upper move ^f1g1 are 1.5122825386182965
-
-Now analyzing next lower move d8d4
-Lower move had score: 1.5918763564403122
-Results of upper move ^f1e1 are 1.5122825386182965
-
-Now analyzing next lower move d8d4
-Lower move had score: 1.650758600202235
-Results of upper move ^a1b1 are 1.568220670192123
-
-Now analyzing next lower move d8d4
-Lower move had score: 1.6591703493110812
-Results of upper move ^f4f5 are 1.5762118318455272
-
-Now analyzing next lower move d8d4
-Lower move had score: 1.6591703493110812
-Results of upper move ^h3h4 are 1.5762118318455272
-
-Now analyzing next lower move d8d4
-Lower move had score: -0.15007057419796205
-Results of upper move ^c3c4 are -0.14256704548806393
-
-Now analyzing next lower move d8d4
-Lower move had score: 1.6759938475287735
-Results of upper move ^b2b3 are 1.5921941551523346
-
-Now analyzing next lower move d8d4
-Lower move had score: 1.6759938475287735
-Results of upper move ^a2a3 are 1.5921941551523346
-
-Now analyzing next lower move d8d4
-Lower move had score: 1.6759938475287735
-Results of upper move ^b2b4 are 1.5921941551523346
-
-Now analyzing next lower move d8d4
-Lower move had score: 1.6759938475287735
-Results of upper move ^a2a4 are 1.5921941551523346
-
-
-
-(Move.from_uci('h3g4'), 3.695038644197558)
-Analysis complete.
->
+def abmax(board, move, alpha, beta, maximize, depthleft):
+    if depthleft == 0:
+        score = evaluatemove(board, move)
+        if maximize:
+            score = -score
+        return move, score
+    pushed = False
+    if move is not None:
+        thismovescore = evaluatemove(board, move)
+        board.push(move)
+        pushed = True
+    else:
+        thismovescore = None
+
+    if board.legal_moves.count() == 0:
+        board.pop()
+        if move is not None:
+            if maximize:
+                thismovescore = -thismovescore
+            return move, thismovescore
+        else:
+            return ("", 0)
+
+    if maximize:
+        maxScore = -10000
+        for move in board.legal_moves:
+            score = abmax(board, move, alpha, beta, False, depthleft - 1, material)[1]
+            if (thismovescore is not None):
+                score -= thismovescore
+            if score > maxScore:
+                bestmove = move
+            maxScore = max(score, maxScore)
+            alpha = max(alpha, score)
+            if alpha >= beta:
+                break
+        if pushed:
+            board.pop()
+        return (bestmove, maxScore)
+    else:
+        minScore = 10000
+        for move in board.legal_moves:
+            score = abmax(board, move, alpha, beta, True, depthleft - 1, material)[1]
+            if (thismovescore is not None):
+                score += thismovescore
+            if score < minScore:
+                worstMove = move
+            minScore = min(score, minScore)
+            beta = min(beta, score)
+            if beta <= alpha:
+                break
+        if pushed:
+            board.pop()
+        return worstMove, minScore
