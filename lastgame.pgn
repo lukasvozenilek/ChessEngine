@@ -1,0 +1,9 @@
+[Event "?"]
+[Site "?"]
+[Date "2021-02-14"]
+[Round "?"]
+[White "LukasEngine Depth 3"]
+[Black "LukasEngine Depth 3"]
+[Result "0-1"]
+
+1. e4 Nf6 2. Bc4 Nxe4 3. f3 Ng5 4. d4 d5 5. Bb5+ c6 6. Bxg5 cxb5 7. Nc3 f6 8. Bf4 e5 9. dxe5 Bb4 10. exf6 Bxc3+ 11. bxc3 gxf6 12. Qe2+ Kf7 13. O-O-O a6 14. Qd3 Nc6 15. Qxd5+ Qxd5 16. Rxd5 Be6 17. Rd6 Bf5 18. g4 Be6 19. a3 h6 20. Ne2 Ne7 21. h3 Bd5 22. Rd7 Bxf3 23. Rhd1 Bxe2 24. R1d5 Bf3 25. Rd4 b6 26. R4d6 Ke8 27. Rd3 Nd5 28. R7xd5 Bxd5 29. Rxd5 Rc8 30. Rd3 Rc5 31. Re3+ Kf7 32. Rd3 Kg6 33. Re3 Rc4 34. Rf3 Re4 35. Bg3 Re2 36. Kd1 Re4 37. Bd6 Rd8 38. Rd3 Re6 39. Rd5 Rexd6 40. Rxd6 Rxd6+ 41. Kc1 Rc6 42. Kb2 Rc5 43. h4 Kh7 44. Kb3 Rc4 45. g5 hxg5 46. hxg5 Rxc3+ 47. Kb2 Rxc2+ 48. Kxc2 fxg5 49. Kb3 Kg6 50. Kb4 Kf5 51. Kb3 Ke6 52. Ka2 g4 53. Kb3 g3 54. a4 g2 55. axb5 axb5 56. Kb4 g1=Q 57. Kxb5 Qb1+ 58. Kc4 b5+ 59. Kd4 b4 60. Kc5 b3 61. Kd4 b2 62. Kc5 Qe4 63. Kb6 b1=Q+ 64. Kc7 Qe5+ 65. Kc8 Qeb8# 0-1

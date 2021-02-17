@@ -1,4 +1,16 @@
-import chess, random, time, math, chess.pgn, chess.engine, datetime
+import chess
+import chess.engine
+import chess.pgn
+import datetime
+import math
+import random
+import time
+from rich import print
+from rich.traceback import install
+from rich.console import Console
+
+console = Console(color_system="windows")
+install()
 
 firstmovesdict = {}
 
@@ -27,7 +39,7 @@ verbose = False
 # Points for each piece
 pointsdict = {chess.PAWN: 1,
               chess.KNIGHT: 3,
-              chess.BISHOP: 3,
+              chess.BISHOP: 3.25,
               chess.ROOK: 5,
               chess.QUEEN: 8,
               chess.KING: 0
@@ -115,7 +127,8 @@ def abmax(board, move, alpha, beta, maximize, depthleft, material):
             if (thismovescore is not None):
                 score -= thismovescore
             if not pushed:
-                print("Results of upper move ^" + str(move) + " are " + str(score))
+                #print("Results of upper move ^" + str(move) + " are " + str(score))
+                console.log("Results of upper move ^" + str(move) + " are " + str(score))
             if score > maxScore:
                 bestmove = move
             maxScore = max(score, maxScore)
@@ -330,10 +343,11 @@ def LukasEngine(board, depth):
     global moves_checked
     starttime = time.time()
     # If white, pick a random first move from the list
-    if board.fullmove_number == 1 and board.turn:
-        move = board.parse_san(openingmoves[random.randrange(0, len(openingmoves), 1)])
-    else:
-        move = abmax(board, None, -10000, 10000, True, int(depth), None)[0]
+    with console.status("[bold green]Analyzing moves...") as status:
+        if board.fullmove_number == 1 and board.turn:
+            move = board.parse_san(openingmoves[random.randrange(0, len(openingmoves), 1)])
+        else:
+            move = abmax(board, None, -10000, 10000, True, int(depth), None)[0]
     # log()(f'{moves_checked:,}' + " possible moves analysed!")
     # log()(f'{moves_checked / (time.time() - starttime):,}' " moves/second")
     moves_checked = 0
